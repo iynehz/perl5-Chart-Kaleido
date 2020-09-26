@@ -1,0 +1,47 @@
+[![Build Status](https://travis-ci.org/stphnlyd/perl5-Chart-Kaleido.svg?branch=master)](https://travis-ci.org/stphnlyd/perl5-Chart-Kaleido)
+[![AppVeyor Status](https://ci.appveyor.com/api/projects/status/github/stphnlyd/perl5-Chart-Kaleido?branch=master&svg=true)](https://ci.appveyor.com/project/stphnlyd/perl5-Chart-Kaleido)
+
+# NAME
+
+Chart::Kaleido::Base - Base class for Chart::Kaleido
+
+# VERSION
+
+version 0.0001
+
+# SYNOPSIS
+
+```perl
+use Chart::Kaleido::Plotly;
+use JSON;
+
+my $data = decode_json(<<'END_OF_TEXT');
+{ "data": [{"y": [1,2,1]}] }
+END_OF_TEXT
+
+my $kaleido = Chart::Plotly::Kaleido->new( timeout => 20 );
+$kaleido->save( "foo.png", decode_json($data), 'png', 1024, 768 );
+```
+
+# DESCRIPTION
+
+# ATTRIBUTES
+
+## timeout
+
+# SEE ALSO
+
+[https://github.com/plotly/Kaleido](https://github.com/plotly/Kaleido)
+
+[Chart::Kaleido::Plotly](https://metacpan.org/pod/Chart%3A%3AKaleido%3A%3APlotly)
+
+# AUTHOR
+
+Stephan Loyd <sloyd@cpan.org>
+
+# COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2020 by Stephan Loyd.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
