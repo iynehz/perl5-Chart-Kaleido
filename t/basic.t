@@ -1,16 +1,16 @@
 #!perl
 
 use JSON;
-use File::Temp qw(tempdir);
+use Path::Tiny;
 use File::Which qw(which);
 
 use Test2::V0;
 use Chart::Kaleido::Plotly;
 
-
 my $kaleido = Chart::Kaleido::Plotly->new( timeout => 20 );
 
-diag join(' ', @{$kaleido->kaleido_command});
+diag "kaleido args: " . join( ' ', @{ $kaleido->kaleido_args } );
+
 #if ($@) {
 #    skip_all("kaleido seems not available: $@");
 #}
@@ -21,8 +21,13 @@ my $data = decode_json(<<'END_OF_TEXT');
 { "data": [{"y": [1,2,1]}] }
 END_OF_TEXT
 
-my $tempdir = tempdir( CLEANUP => 1 );
-$kaleido->save( "$tempdir/foo.png", $data, 'png', 1024, 768 );
+my $tempdir = Path::Tiny->tempdir;
+$kaleido->save(
+    file   => "$tempdir/foo.png",
+    plotly => $data,
+    width  => 1024,
+    height => 768
+);
 
 ok( ( -f "$tempdir/foo.png" ), "generate image" );
 

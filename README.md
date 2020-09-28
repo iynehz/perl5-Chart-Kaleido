@@ -19,11 +19,14 @@ my $data = decode_json(<<'END_OF_TEXT');
 { "data": [{"y": [1,2,1]}] }
 END_OF_TEXT
 
-my $kaleido = Chart::Plotly::Kaleido->new( timeout => 20 );
-$kaleido->save( "foo.png", decode_json($data), 'png', 1024, 768 );
+my $kaleido = Chart::Plotly::Kaleido->new();
+$kaleido->save( file => "foo.png", plotly => decode_json($data),
+                widht => 1024, height => 768 );
 ```
 
 # DESCRIPTION
+
+This is base class that wraps plotly's kaleido command.
 
 # ATTRIBUTES
 
@@ -33,7 +36,8 @@ $kaleido->save( "foo.png", decode_json($data), 'png', 1024, 768 );
 
 [https://github.com/plotly/Kaleido](https://github.com/plotly/Kaleido)
 
-[Chart::Kaleido::Plotly](https://metacpan.org/pod/Chart%3A%3AKaleido%3A%3APlotly)
+[Chart::Kaleido::Plotly](https://metacpan.org/pod/Chart%3A%3AKaleido%3A%3APlotly),
+[Alien::Plotly::Kaleido](https://metacpan.org/pod/Alien%3A%3APlotly%3A%3AKaleido)
 
 # AUTHOR
 

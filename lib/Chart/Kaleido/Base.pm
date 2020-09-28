@@ -45,18 +45,15 @@ has scope_flags => (
     default  => sub { [] },
 );
 
-has base_command => (
+has base_args => (
     is       => 'ro',
     init_arg => 0,
-    default  => sub { [KALEIDO] },
+    default  => sub { [] },
 );
 
 has _stall_timeout => (
     is      => 'lazy',
-    builder => sub {
-        my $self = shift;
-        timeout( $self->timeout, name => 'stall timeout' );
-    },
+    builder => sub { timeout( $_[0]->timeout, name => 'stall timeout' ) },
 );
 
 has _h => ( is => 'rw' );
@@ -64,11 +61,7 @@ has _h => ( is => 'rw' );
 has _ios => (
     is      => 'ro',
     default => sub {
-        {
-            in  => '',
-            out => '',
-            err => '',
-        };
+        return { map { $_ => '' } qw(in out err) };
     },
 );
 
@@ -84,11 +77,11 @@ sub _reset {
     $self->_ios->{err} = '';
 }
 
-sub kaleido_command {
+sub kaleido_args {
     my ($self) = @_;
 
-    my @cmd = @{ $self->base_command };
-    push @cmd, map {
+    my @args = @{ $self->base_args };
+    push @args, map {
         no strict 'refs';
         my $val = $self->$_;
         if ( defined $val ) {
@@ -101,11 +94,89 @@ sub kaleido_command {
         }
     } @{ $self->scope_flags };
 
-    return \@cmd;
+    return \@args;
+}
+
+sub ensure_kaleido {
+    my ( $self, $override_args ) = @_;
+    $override_args //= $self->kaleido_args;
+
+    unless ( $self->_h and $self->_h->pumpable ) {
+        $self->_reset;
+        my $h = IPC::Run::start(
+            [ KALEIDO, @{ $self->kaleido_args } ], \$self->_ios->{in},
+            '>pty>', \$self->_ios->{out},
+            '2>',    \$self->_ios->{err},
+            $self->_stall_timeout,
+        );
+        $self->_h($h);
+
+        $self->_stall_timeout->start;
+        my $resp = $self->_get_kaleido_out;
+        if ( exists $resp->{code} and $resp->{code} == 0 ) {
+            return $resp->{version};
+        }
+        else {
+            die $resp->{message};
+        }
+    }
+}
+
+sub shutdown_kaleido {
+    my ($self) = @_;
+
+    if ( $self->_h ) {
+        $self->_h->kill_kill;
+    }
+}
+
+sub do_transform {
+    my ( $self, $data ) = @_;
+
+    $self->ensure_kaleido;
+    $self->_ios->{in} .= encode_json($data) . "\n";
+    $self->_stall_timeout->start;
+    my $resp = $self->_get_kaleido_out;
+    return $resp;
+}
+
+sub version {
+    my ( $class, $force_check ) = @_;
+
+    if ( $class->_check_alien($force_check) ) {
+        return Alien::Plotly::Kaleido->version;
+    }
+    else {
+        state $version;
+        if ( not $version or $force_check ) {
+            $version = $class->_detect_kaleido_version;
+        }
+        return $version;
+    }
+}
+
+sub _get_kaleido_out {
+    my ($self) = @_;
+
+    while (1) {
+        $self->_h->pump;
+        my $out   = $self->_ios->{out};
+        my @lines = split( /\n/, $out );
+        next unless @lines;
+
+        for my $line (@lines) {
+            my $data;
+            eval { $data = decode_json($line); };
+            next if $@;
+            $self->_stall_timeout->reset;
+            $self->_ios->{out} = '';    # clear out buffer
+            return $data;
+        }
+    }
 }
 
 sub _check_alien {
-    my ( $self, $force_check ) = @_;
+    my ( $class, $force_check ) = @_;
 
     state $has_alien;
 
@@ -125,13 +196,12 @@ sub _check_alien {
 }
 
 sub _kaleido_available {
-    my ( $self, $force_check ) = @_;
+    my ( $class, $force_check ) = @_;
 
     state $available;
-
     if ( !defined $available or $force_check ) {
         $available = 0;
-        if ( not $self->_check_alien($force_check)
+        if ( not $class->_check_alien($force_check)
             and ( not which(KALEIDO) ) )
         {
             die "Kaleido tool (its 'kaleido' command) must be installed and "
@@ -144,92 +214,22 @@ sub _kaleido_available {
     return $available;
 }
 
-sub _kaleido_version {
-    my ( $self, $force_check ) = @_;
+sub _detect_kaleido_version {
+    my ($class) = @_;
 
-    state $version;
-
-    if ( $self->_check_alien($force_check) ) {
-
-        #$version = Alien::Plotly::Kaleido->version;
+    my $kaleido = which('kaleido');
+    if ($kaleido) {
+        my $kaleido = $class->new;
+        my $args    = [ 'plotly', '--disable-gpu' ];
+        my $version = $kaleido->ensure_kaleido($args);
+        $kaleido->shutdown_kaleido;
+        return $version;
     }
-    if ( $self->_kaleido_available($force_check) ) {
 
-        #my $version = `$ --version`;
-        #chomp($version);
-        #$version = $version;
-    }
-    return $version;
+    die "Failed to detect kaleido version";
 }
 
-sub ensure_kaleido {
-    my ($self) = @_;
-
-    unless ( $self->_h and $self->_h->pumpable ) {
-        my $h = IPC::Run::start(
-            $self->kaleido_command, \$self->_ios->{in},
-            '>pty>',                \$self->_ios->{out},
-            '2>',                   \$self->_ios->{err},
-            $self->_stall_timeout,
-        );
-        $self->_h($h);
-
-        while (1) {
-            $self->_h->pump;
-
-            my $resp = $self->_get_kaleido_out;
-            if ( exists $resp->{code} and $resp->{code} == 0 ) {
-                return $resp;
-
-                #$self->_stall_timeout->reset;
-            }
-            else {
-                die $resp->{message};
-            }
-        }
-    }
-}
-
-sub shutdown_kaleido {
-    my ($self) = @_;
-
-    if ( $self->_h ) {
-        eval { $self->_h->finish; };
-        if ($@) {
-            $self->_h->kill_kill;
-        }
-    }
-    $self->_reset;
-}
-
-sub do_transform {
-    my ( $self, $data ) = @_;
-
-    $self->ensure_kaleido;
-    $self->_ios->{in} .= encode_json($data) . "\n";
-
-    my $resp = $self->_get_kaleido_out;
-    return $resp;
-}
-
-sub _get_kaleido_out {
-    my ($self) = @_;
-
-    while (1) {
-        $self->_h->pump;
-        my $out   = $self->_ios->{out};
-        my @lines = split( /\n/, $out );
-        next unless @lines;
-
-        for my $line (@lines) {
-            my $data;
-            eval { $data = decode_json($line); };
-            next if $@;
-            $self->_ios->{out} = '';    # clear out buffer
-            return $data;
-        }
-    }
-}
+__PACKAGE__->_kaleido_available;
 
 1;
 
@@ -247,10 +247,12 @@ __END__
     END_OF_TEXT
 
     my $kaleido = Chart::Plotly::Kaleido->new();
-    $kaleido->save( "foo.png", decode_json($data), 'png', 1024, 768 );
+    $kaleido->save( file => "foo.png", plotly => decode_json($data),
+                    widht => 1024, height => 768 );
 
 =head1 DESCRIPTION
 
+This is base class that wraps plotly's kaleido command.
 
 =head1 SEE ALSO
 
@@ -258,5 +260,4 @@ L<https://github.com/plotly/Kaleido>
 
 L<Chart::Kaleido::Plotly>,
 L<Alien::Plotly::Kaleido>
-
 

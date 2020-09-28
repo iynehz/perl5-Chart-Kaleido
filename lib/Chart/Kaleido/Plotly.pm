@@ -12,11 +12,13 @@ use Moo;
 extends 'Chart::Kaleido::Base';
 
 use File::ShareDir;
-use Types::Standard qw(Int Str);
-use Types::Path::Tiny qw(File);
-use Path::Tiny;
-use MIME::Base64 qw(decode_base64);
 use JSON;
+use MIME::Base64 qw(decode_base64);
+use Path::Tiny;
+use Safe::Isa;
+use Type::Params 1.004000 qw(compile_named_oo);
+use Types::Path::Tiny qw(File Path);
+use Types::Standard qw(Int Str Num HashRef InstanceOf Optional);
 use namespace::autoclean;
 
 =attr timeout
@@ -24,6 +26,12 @@ use namespace::autoclean;
 =cut
 
 my @text_formats = qw(svg json eps);
+
+=attr all_formats
+
+All supported formats.
+
+=cut
 
 has '+all_formats' =>
   ( default => sub { [qw(png jpg jpeg webp svg pdf eps json)] } );
@@ -33,11 +41,12 @@ has '+scope_name' => ( default => 'plotly' );
 has '+scope_flags' =>
   ( default => sub { [qw(plotlyjs mathjax topojson mapbox_access_token)] }, );
 
-has '+base_command' =>
-  ( default => sub { [ $_[0]->KALEIDO, qw(plotly --disable-gpu) ] }, );
+has '+base_args' =>
+  ( default => sub { [ qw(plotly --disable-gpu) ] } );
 
 =attr plotlyjs
 
+Path to plotly js file.
 Default value is plotly js bundled with L<Chart::Ploly>.
 
 =attr mathjax
@@ -73,10 +82,33 @@ has mapbox_access_token => (
     isa => Str
 );
 
+=method transform
+
+    transform(( HashRef | InstanceOf["Chart::Plotly::Plot"] ) :$plotly,
+              Optional[Str] :$format,
+              Int :$width, Int :$height, Num :$scale=1)
+
+Returns raw image data.
+
+=cut
+
 sub transform {
-    my ( $self, $plotly_data, $format, $width, $height, $scale ) = @_;
-    $format = lc($format);
-    $scale //= 1;
+    my $self = shift;
+    state $check = compile_named_oo(
+    #<<< no perltidy
+        plotly => ( HashRef | InstanceOf["Chart::Plotly::Plot"] ),
+        format => Optional[Str],
+        width  => Int,
+        height => Int,
+        scale  => Num, { default => 1 },
+    #>>>
+    );
+    my $arg = $check->(@_);
+    my $plotly =
+        $arg->plotly->$_isa('Chart::Plotly::Plot')
+      ? $arg->plotly->TO_JSON
+      : $arg->plotly;
+    my $format = lc( $arg->format );
 
     unless ( grep { $_ eq $format } @{ $self->all_formats } ) {
         die "Invalid format '$format'. Supported formats: "
@@ -85,31 +117,62 @@ sub transform {
 
     my $data = {
         format => $format,
-        width  => $width,
-        height => $height,
-        scale  => $scale,
-        data   => $plotly_data,
+        width  => $arg->width,
+        height => $arg->height,
+        scale  => $arg->scale,
+        data   => $plotly,
     };
     my $resp = $self->do_transform($data);
     if ( $resp->{code} != 0 ) {
         die $resp->{message};
     }
-    return $resp;
+    my $img = $resp->{result};
+    return ( grep { $_ eq $format } @text_formats )
+      ? $img
+      : decode_base64($img);
 }
 
-sub save {
-    my ( $self, $dst, $plotly_data, $format, $width, $height, $scale ) = @_;
+=method save
 
-    my $resp =
-      $self->transform( $plotly_data, $format, $width, $height, $scale );
-    if ($resp) {
-        my $img = $resp->{result};
-        unless ( grep { $_ eq $format } @text_formats ) {
-            $img = decode_base64($img);
+    save(:$file,
+         ( HashRef | InstanceOf["Chart::Plotly::Plot"] ) :$plotly,
+         Optional[Str] :$format,
+         Int :$width, Int :$height, Num :$scale=1)
+
+Save static image to file.
+
+=cut
+
+sub save {
+    my $self = shift;
+    state $check = compile_named_oo(
+    #<<< no perltidy
+        file    => Path,
+        plotly => ( HashRef | InstanceOf["Chart::Plotly::Plot"] ),
+        format => Optional[Str],
+        width  => Int,
+        height => Int,
+        scale  => Num, { default => 1 },
+    #>>>
+    );
+    my $arg    = $check->(@_);
+    my $format = $arg->format;
+    my $file   = $arg->file;
+    unless ($format) {
+        if ( $file =~ /\.([^\.]+)$/ ) {
+            $format = $1;
         }
-        path($dst)->spew_raw($img);
     }
-    return;
+    $format = lc($format);
+
+    my $img = $self->transform(
+        plotly => $arg->plotly,
+        format => $format,
+        width  => $arg->width,
+        height => $arg->height,
+        scale  => $arg->scale
+    );
+    path($file)->spew_raw($img);
 }
 
 1;
@@ -128,10 +191,12 @@ __END__
     END_OF_TEXT
 
     my $kaleido = Chart::Kaleido::Plotly->new();
-    $kaleido->save( "foo.png", decode_json($data), 'png', 1024, 768 );
+    $kaleido->save( file => "foo.png", plotly => decode_json($data),
+                    width => 1024, height => 768 );
 
 =head1 DESCRIPTION
 
+This class wraps the "plotly" scope of plotly's kaleido command.
 
 =head1 SEE ALSO
 
