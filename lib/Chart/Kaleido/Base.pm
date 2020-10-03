@@ -104,9 +104,10 @@ sub ensure_kaleido {
     unless ( $self->_h and $self->_h->pumpable ) {
         $self->_reset;
         my $h = IPC::Run::start(
-            [ KALEIDO, @{ $self->kaleido_args } ], \$self->_ios->{in},
-            '>pty>', \$self->_ios->{out},
-            '2>',    \$self->_ios->{err},
+            [ KALEIDO, @{ $self->kaleido_args } ],
+            \$self->_ios->{in},
+            \$self->_ios->{out},
+            \$self->_ios->{err},
             $self->_stall_timeout,
         );
         $self->_h($h);
@@ -126,7 +127,10 @@ sub shutdown_kaleido {
     my ($self) = @_;
 
     if ( $self->_h ) {
-        $self->_h->kill_kill;
+        eval { $self->finish; };
+        if ($@) {
+            $self->_h->kill_kill;
+        }
     }
 }
 
