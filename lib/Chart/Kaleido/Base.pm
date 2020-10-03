@@ -81,8 +81,8 @@ sub kaleido_args {
     my ($self) = @_;
 
     my @args = @{ $self->base_args };
+    no strict 'refs';
     push @args, map {
-        no strict 'refs';
         my $val = $self->$_;
         if ( defined $val ) {
             my $flag = $_;
