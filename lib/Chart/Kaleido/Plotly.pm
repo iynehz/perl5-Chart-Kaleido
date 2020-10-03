@@ -18,7 +18,7 @@ use Path::Tiny;
 use Safe::Isa;
 use Type::Params 1.004000 qw(compile_named_oo);
 use Types::Path::Tiny qw(File Path);
-use Types::Standard qw(Int Str Num HashRef InstanceOf Optional);
+use Types::Standard qw(Int Str Num HashRef InstanceOf Optional Undef);
 use namespace::autoclean;
 
 =attr timeout
@@ -59,7 +59,7 @@ Default value is plotly js bundled with L<Chart::Ploly>.
 
 has plotlyjs => (
     is      => 'ro',
-    isa     => File,
+    isa     => (Str | Undef),
     coerce  => 1,
     builder => sub {
         my $plotlyjs;
@@ -73,13 +73,13 @@ has plotlyjs => (
 
 has [qw(mathjax topojson)] => (
     is     => 'ro',
-    isa    => File,
+    isa    => (Str | Undef),
     coerce => 1,
 );
 
 has mapbox_access_token => (
     is  => 'ro',
-    isa => Str
+    isa => (Str | Undef),
 );
 
 =method transform

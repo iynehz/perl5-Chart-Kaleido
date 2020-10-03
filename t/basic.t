@@ -7,7 +7,7 @@ use File::Which qw(which);
 use Test2::V0;
 use Chart::Kaleido::Plotly;
 
-my $kaleido = Chart::Kaleido::Plotly->new( timeout => 20 );
+my $kaleido = Chart::Kaleido::Plotly->new();
 
 diag "kaleido args: " . join( ' ', @{ $kaleido->kaleido_args } );
 
