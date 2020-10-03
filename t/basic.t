@@ -1,11 +1,29 @@
 #!perl
 
+use 5.010;
+use warnings;
+
 use JSON;
 use Path::Tiny;
-use File::Which qw(which);
 
 use Test2::V0;
 use Chart::Kaleido::Plotly;
+
+sub check_file_type {
+    my ( $file, $expected ) = @_;
+  SKIP: {
+        eval {
+            require File::LibMagic;
+            my $magic = File::LibMagic->new;
+            my $info  = $magic->info_from_filename("$file");
+            is( $info->{mime_type}, $expected );
+        };
+        if ($@) {
+            warn($@);
+            skip "requires File::LibMagic", 1;
+        }
+    }
+}
 
 my $kaleido = Chart::Kaleido::Plotly->new();
 
@@ -22,13 +40,25 @@ my $data = decode_json(<<'END_OF_TEXT');
 END_OF_TEXT
 
 my $tempdir = Path::Tiny->tempdir;
+
+my $png_file = path( $tempdir, "foo.png" );
 $kaleido->save(
-    file   => "$tempdir/foo.png",
+    file   => $png_file,
     plotly => $data,
     width  => 1024,
     height => 768
 );
+ok( ( -f $png_file ), "generate png" );
+check_file_type( $png_file, 'image/png' );
 
-ok( ( -f "$tempdir/foo.png" ), "generate image" );
+my $svg_file = path( $tempdir, "foo.svg" );
+$kaleido->save(
+    file   => $svg_file,
+    plotly => $data,
+    width  => 1024,
+    height => 768
+);
+ok( ( -f $svg_file ), "generate svg" );
+check_file_type( $svg_file, 'image/svg+xml' );
 
 done_testing;
