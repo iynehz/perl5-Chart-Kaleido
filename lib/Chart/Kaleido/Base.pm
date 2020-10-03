@@ -257,6 +257,8 @@ __END__
 =head1 DESCRIPTION
 
 This is base class that wraps plotly's kaleido command.
+Instead of this class you would mostly want to use
+its subclass like L<Chart::Kaleido::Plotly>.
 
 =head1 SEE ALSO
 

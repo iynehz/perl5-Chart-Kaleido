@@ -7,7 +7,7 @@ Chart::Kaleido::Base - Base class for Chart::Kaleido
 
 # VERSION
 
-version 0.0001
+version 0.001
 
 # SYNOPSIS
 
@@ -27,6 +27,8 @@ $kaleido->save( file => "foo.png", plotly => decode_json($data),
 # DESCRIPTION
 
 This is base class that wraps plotly's kaleido command.
+Instead of this class you would mostly want to use
+its subclass like [Chart::Kaleido::Plotly](https://metacpan.org/pod/Chart%3A%3AKaleido%3A%3APlotly).
 
 # ATTRIBUTES
 
