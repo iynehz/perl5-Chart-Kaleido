@@ -14,14 +14,14 @@ sub check_file_type {
   SKIP: {
         eval {
             require File::LibMagic;
-            my $magic = File::LibMagic->new;
-            my $info  = $magic->info_from_filename("$file");
-            is( $info->{mime_type}, $expected );
         };
         if ($@) {
-            warn($@);
             skip "requires File::LibMagic", 1;
+	    return;
         }
+        my $magic = File::LibMagic->new;
+        my $info  = $magic->info_from_filename("$file");
+        is( $info->{mime_type}, $expected );
     }
 }
 
@@ -39,6 +39,12 @@ my $data = decode_json(<<'END_OF_TEXT');
 { "data": [{"y": [1,2,1]}] }
 END_OF_TEXT
 
+# TODO: Seems there is an issue with IPC::Run and File::Temp on Windows,
+# that if a tempdir is created before IPC::Run::start, it can have
+# permission error..
+if ($^O eq 'MSWin32') {
+    $kaleido->ensure_kaleido;
+}
 my $tempdir = Path::Tiny->tempdir;
 
 my $png_file = path( $tempdir, "foo.png" );
