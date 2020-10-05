@@ -12,26 +12,25 @@ use Chart::Kaleido::Plotly;
 sub check_file_type {
     my ( $file, $expected ) = @_;
   SKIP: {
-        eval {
-            require File::LibMagic;
-        };
+        eval { require File::LibMagic; };
         if ($@) {
             skip "requires File::LibMagic", 1;
-	    return;
+            return;
         }
         my $magic = File::LibMagic->new;
         my $info  = $magic->info_from_filename("$file");
-        is( $info->{mime_type}, $expected );
+        if ( ref($expected) eq 'Regexp' ) {
+            like( $info->{mime_type}, $expected );
+        }
+        else {
+            is( $info->{mime_type}, $expected );
+        }
     }
 }
 
 my $kaleido = Chart::Kaleido::Plotly->new();
 
 diag "kaleido args: " . join( ' ', @{ $kaleido->kaleido_args } );
-
-#if ($@) {
-#    skip_all("kaleido seems not available: $@");
-#}
 
 ok("create kaleido object");
 
@@ -65,6 +64,6 @@ $kaleido->save(
     height => 768
 );
 ok( ( -f $svg_file ), "generate svg" );
-check_file_type( $svg_file, 'image/svg+xml' );
+check_file_type( $svg_file, qr/image\/svg/ );
 
 done_testing;

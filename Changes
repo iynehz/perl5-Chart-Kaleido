@@ -1,5 +1,8 @@
 Revision history of Chart-Kaleido
 
+0.002       2020-10-05
+    - Fix file mime type test.
+
 0.001       2020-10-04
     - First release.
 
