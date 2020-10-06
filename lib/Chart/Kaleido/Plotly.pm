@@ -9,7 +9,7 @@ use warnings;
 # VERSION
 
 use Moo;
-extends 'Chart::Kaleido::Base';
+extends 'Chart::Kaleido';
 
 use File::ShareDir;
 use JSON;
@@ -203,7 +203,7 @@ This class wraps the "plotly" scope of plotly's kaleido command.
 L<https://github.com/plotly/Kaleido>
 
 L<Chart::Plotly>,
-L<Chart::Kaleido::Base>,
+L<Chart::Kaleido>,
 L<Alien::Plotly::Kaleido>
 
 

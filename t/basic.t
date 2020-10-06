@@ -64,6 +64,6 @@ $kaleido->save(
     height => 768
 );
 ok( ( -f $svg_file ), "generate svg" );
-check_file_type( $svg_file, qr/image\/svg/ );
+check_file_type( $svg_file, qr/^(image\/svg|text\/plain)/ );
 
 done_testing;

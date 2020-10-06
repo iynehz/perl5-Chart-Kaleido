@@ -3,11 +3,11 @@
 
 # NAME
 
-Chart::Kaleido::Base - Base class for Chart::Kaleido
+Chart::Kaleido - Base class for Chart::Kaleido
 
 # VERSION
 
-version 0.002
+version 0.002\_001
 
 # SYNOPSIS
 

@@ -1,4 +1,4 @@
-package Chart::Kaleido::Base;
+package Chart::Kaleido;
 
 # ABSTRACT: Base class for Chart::Kaleido
 
