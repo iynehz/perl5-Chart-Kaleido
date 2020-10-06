@@ -15,7 +15,7 @@ version 0.002
 use Chart::Kaleido::Plotly;
 use JSON;
 
-my $data = decode_json(<<'END_OF_TEXT');
+my $data = <<'END_OF_TEXT';
 { "data": [{"y": [1,2,1]}] }
 END_OF_TEXT
 
