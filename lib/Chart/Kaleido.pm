@@ -87,7 +87,14 @@ sub kaleido_args {
         if ( defined $val ) {
             my $flag = $_;
             $flag =~ s/_/-/g;
-            "--$flag=$val";
+
+            # too bad Perl does not have a core boolean type..
+            if ( ref($val) =~ /^(JSON::.*::Boolean|boolean)$/ and $val ) {
+                "--$flag";
+            }
+            else {
+                "--$flag=$val";
+            }
         }
         else {
             ();

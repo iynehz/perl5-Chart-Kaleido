@@ -27,23 +27,6 @@ use namespace::autoclean;
 
 my @text_formats = qw(svg json eps);
 
-=attr all_formats
-
-All supported formats.
-
-=cut
-
-has '+all_formats' =>
-  ( default => sub { [qw(png jpg jpeg webp svg pdf eps json)] } );
-
-has '+scope_name' => ( default => 'plotly' );
-
-has '+scope_flags' =>
-  ( default => sub { [qw(plotlyjs mathjax topojson mapbox_access_token)] }, );
-
-has '+base_args' =>
-  ( default => sub { [ qw(plotly --disable-gpu) ] } );
-
 =attr plotlyjs
 
 Path to plotly js file.
@@ -81,6 +64,24 @@ has mapbox_access_token => (
     is  => 'ro',
     isa => (Str | Undef),
 );
+
+=attr all_formats
+
+Read-only class attribute. All supported formats.
+
+=cut
+
+has '+all_formats' =>
+  ( default => sub { [qw(png jpg jpeg webp svg pdf eps json)] } );
+
+has '+scope_name' => ( default => 'plotly' );
+
+has '+scope_flags' =>
+  ( default => sub { [qw(plotlyjs mathjax topojson mapbox_access_token)] }, );
+
+has '+base_args' =>
+  ( default => sub { [ qw(plotly --disable-gpu) ] } );
+
 
 =method transform
 
