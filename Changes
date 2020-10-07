@@ -1,6 +1,6 @@
 Revision history of Chart-Kaleido
 
-0.002_001   2020-10-06
+0.003       2020-10-07
     - Rename Chart::Kaleido::Base to take the Chart::Kaleido namespace.
 
 0.002       2020-10-05

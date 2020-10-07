@@ -7,7 +7,7 @@ Chart::Kaleido - Base class for Chart::Kaleido
 
 # VERSION
 
-version 0.002\_001
+version 0.003
 
 # SYNOPSIS
 
