@@ -7,7 +7,7 @@ Chart::Kaleido - Base class for Chart::Kaleido
 
 # VERSION
 
-version 0.003
+version 0.004
 
 # SYNOPSIS
 
@@ -20,7 +20,7 @@ my $data = decode_json(<<'END_OF_TEXT');
 END_OF_TEXT
 
 my $kaleido = Chart::Plotly::Kaleido->new();
-$kaleido->save( file => "foo.png", plotly => $data,
+$kaleido->save( file => "foo.png", plot => $data,
                 widht => 1024, height => 768 );
 ```
 
@@ -44,6 +44,10 @@ its subclass like [Chart::Kaleido::Plotly](https://metacpan.org/pod/Chart%3A%3AK
 # AUTHOR
 
 Stephan Loyd <sloyd@cpan.org>
+
+# CONTRIBUTOR
+
+Gabor Szabo <gabor@szabgab.com>
 
 # COPYRIGHT AND LICENSE
 

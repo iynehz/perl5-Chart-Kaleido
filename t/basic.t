@@ -49,7 +49,7 @@ my $tempdir = Path::Tiny->tempdir;
 my $png_file = path( $tempdir, "foo.png" );
 $kaleido->save(
     file   => $png_file,
-    plotly => $data,
+    plot   => $data,
     width  => 1024,
     height => 768
 );
@@ -59,7 +59,7 @@ check_file_type( $png_file, 'image/png' );
 my $svg_file = path( $tempdir, "foo.svg" );
 $kaleido->save(
     file   => $svg_file,
-    plotly => $data,
+    plot   => $data,
     width  => 1024,
     height => 768
 );

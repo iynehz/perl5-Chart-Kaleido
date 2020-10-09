@@ -258,7 +258,7 @@ __END__
     END_OF_TEXT
 
     my $kaleido = Chart::Plotly::Kaleido->new();
-    $kaleido->save( file => "foo.png", plotly => $data,
+    $kaleido->save( file => "foo.png", plot => $data,
                     widht => 1024, height => 768 );
 
 =head1 DESCRIPTION

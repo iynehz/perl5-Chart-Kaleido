@@ -85,7 +85,7 @@ has '+base_args' =>
 
 =method transform
 
-    transform(( HashRef | InstanceOf["Chart::Plotly::Plot"] ) :$plotly,
+    transform(( HashRef | InstanceOf["Chart::Plotly::Plot"] ) :$plot,
               Optional[Str] :$format,
               Int :$width, Int :$height, Num :$scale=1)
 
@@ -97,7 +97,7 @@ sub transform {
     my $self = shift;
     state $check = compile_named_oo(
     #<<< no perltidy
-        plotly => ( HashRef | InstanceOf["Chart::Plotly::Plot"] ),
+        plot   => ( HashRef | InstanceOf["Chart::Plotly::Plot"] ),
         format => Optional[Str],
         width  => Int,
         height => Int,
@@ -105,10 +105,10 @@ sub transform {
     #>>>
     );
     my $arg = $check->(@_);
-    my $plotly =
-        $arg->plotly->$_isa('Chart::Plotly::Plot')
-      ? $arg->plotly->TO_JSON
-      : $arg->plotly;
+    my $plot =
+        $arg->plot->$_isa('Chart::Plotly::Plot')
+      ? $arg->plot->TO_JSON
+      : $arg->plot;
     my $format = lc( $arg->format );
 
     unless ( grep { $_ eq $format } @{ $self->all_formats } ) {
@@ -121,7 +121,7 @@ sub transform {
         width  => $arg->width,
         height => $arg->height,
         scale  => $arg->scale,
-        data   => $plotly,
+        data   => $plot,
     };
     my $resp = $self->do_transform($data);
     if ( $resp->{code} != 0 ) {
@@ -136,7 +136,7 @@ sub transform {
 =method save
 
     save(:$file,
-         ( HashRef | InstanceOf["Chart::Plotly::Plot"] ) :$plotly,
+         ( HashRef | InstanceOf["Chart::Plotly::Plot"] ) :$plot,
          Optional[Str] :$format,
          Int :$width, Int :$height, Num :$scale=1)
 
@@ -148,8 +148,8 @@ sub save {
     my $self = shift;
     state $check = compile_named_oo(
     #<<< no perltidy
-        file    => Path,
-        plotly => ( HashRef | InstanceOf["Chart::Plotly::Plot"] ),
+        file   => Path,
+        plot   => ( HashRef | InstanceOf["Chart::Plotly::Plot"] ),
         format => Optional[Str],
         width  => Int,
         height => Int,
@@ -167,7 +167,7 @@ sub save {
     $format = lc($format);
 
     my $img = $self->transform(
-        plotly => $arg->plotly,
+        plot   => $arg->plot,
         format => $format,
         width  => $arg->width,
         height => $arg->height,
@@ -192,7 +192,7 @@ __END__
     END_OF_TEXT
 
     my $kaleido = Chart::Kaleido::Plotly->new();
-    $kaleido->save( file => "foo.png", plotly => $data,
+    $kaleido->save( file => "foo.png", plot => $data,
                     width => 1024, height => 768 );
 
 =head1 DESCRIPTION
