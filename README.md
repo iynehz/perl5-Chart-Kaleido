@@ -20,7 +20,7 @@ my $data = decode_json(<<'END_OF_TEXT');
 END_OF_TEXT
 
 my $kaleido = Chart::Plotly::Kaleido->new();
-$kaleido->save( file => "foo.png", plotly => decode_json($data),
+$kaleido->save( file => "foo.png", plotly => $data,
                 widht => 1024, height => 768 );
 ```
 

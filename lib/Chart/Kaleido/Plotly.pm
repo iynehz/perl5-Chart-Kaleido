@@ -192,7 +192,7 @@ __END__
     END_OF_TEXT
 
     my $kaleido = Chart::Kaleido::Plotly->new();
-    $kaleido->save( file => "foo.png", plotly => decode_json($data),
+    $kaleido->save( file => "foo.png", plotly => $data,
                     width => 1024, height => 768 );
 
 =head1 DESCRIPTION
