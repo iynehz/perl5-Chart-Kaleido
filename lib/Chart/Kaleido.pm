@@ -28,23 +28,6 @@ has timeout => (
     default => 30,
 );
 
-has all_formats => (
-    is       => 'ro',
-    init_arg => 0,
-    default  => sub { [] },
-);
-
-has scope_name => (
-    is       => 'ro',
-    init_arg => 0,
-);
-
-has scope_flags => (
-    is       => 'ro',
-    init_arg => 0,
-    default  => sub { [] },
-);
-
 has base_args => (
     is       => 'ro',
     init_arg => 0,
@@ -64,6 +47,11 @@ has _ios => (
         return { map { $_ => '' } qw(in out err) };
     },
 );
+
+# class attributes
+sub all_formats { [] }
+sub scope_name  { "" }
+sub scope_flags { [] }
 
 sub DEMOLISH {
     my ($self) = @_;

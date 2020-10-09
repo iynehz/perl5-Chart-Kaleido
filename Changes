@@ -1,5 +1,9 @@
 Revision history of Chart-Kaleido
 
+0.005       TBD
+    - all_formats, scope_name, scope_flags are now like class
+      attributes/methods.
+
 0.004       2020-10-10
     - Breaking change: Rename save() and transform() funcs' plotly
       parameter to plot, to align with existing Chart::Plotly's api.
