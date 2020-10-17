@@ -65,6 +65,30 @@ has mapbox_access_token => (
     isa => (Str | Undef),
 );
 
+=attr default_width
+
+Default is 700.
+
+=attr default_height
+
+Default is 500.
+
+=cut
+
+my $PositiveInt = Int->where( sub { $_ > 0 } );
+
+has default_width => (
+    is      => 'ro',
+    isa     => $PositiveInt,
+    default => 700,
+);
+
+has default_height => (
+    is      => 'ro',
+    isa     => $PositiveInt,
+    default => 500,
+);
+
 has '+base_args' =>
   ( default => sub { [ qw(plotly --disable-gpu) ] } );
 
@@ -76,7 +100,9 @@ sub scope_flags { [qw(plotlyjs mathjax topojson mapbox_access_token)] }
 
     transform(( HashRef | InstanceOf["Chart::Plotly::Plot"] ) :$plot,
               Optional[Str] :$format,
-              Int :$width, Int :$height, Num :$scale=1)
+              PositiveInt :$width=$self->default_width,
+              PositiveInt :$height=$self->default_height,
+              Num :$scale=1)
 
 Returns raw image data.
 
@@ -88,8 +114,8 @@ sub transform {
     #<<< no perltidy
         plot   => ( HashRef | InstanceOf["Chart::Plotly::Plot"] ),
         format => Optional[Str],
-        width  => Int,
-        height => Int,
+        width  => $PositiveInt, { default => sub { $self->default_width } },
+        height => $PositiveInt, { default => sub { $self->default_height} },
         scale  => Num, { default => 1 },
     #>>>
     );
@@ -112,6 +138,7 @@ sub transform {
         scale  => $arg->scale,
         data   => $plot,
     };
+    warn ref($plot);
     my $resp = $self->do_transform($data);
     if ( $resp->{code} != 0 ) {
         die $resp->{message};
@@ -127,7 +154,9 @@ sub transform {
     save(:$file,
          ( HashRef | InstanceOf["Chart::Plotly::Plot"] ) :$plot,
          Optional[Str] :$format,
-         Int :$width, Int :$height, Num :$scale=1)
+         PositiveInt :$width=$self->default_width,
+         PositiveInt :$height=$self->default_height,
+         Num :$scale=1)
 
 Save static image to file.
 
@@ -140,8 +169,8 @@ sub save {
         file   => Path,
         plot   => ( HashRef | InstanceOf["Chart::Plotly::Plot"] ),
         format => Optional[Str],
-        width  => Int,
-        height => Int,
+        width  => $PositiveInt, { default => sub { $self->default_width } },
+        height => $PositiveInt, { default => sub { $self->default_height} },
         scale  => Num, { default => 1 },
     #>>>
     );
