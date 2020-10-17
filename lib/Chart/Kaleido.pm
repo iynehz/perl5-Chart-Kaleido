@@ -13,7 +13,7 @@ use Config;
 use JSON;
 use Types::Standard qw(Int Str);
 use File::Which qw(which);
-use IPC::Run qw(timeout);
+use IPC::Run qw();
 use namespace::autoclean;
 
 use constant KALEIDO => 'kaleido';
@@ -36,7 +36,7 @@ has base_args => (
 
 has _stall_timeout => (
     is      => 'lazy',
-    builder => sub { timeout( $_[0]->timeout, name => 'stall timeout' ) },
+    builder => sub { IPC::Run::timeout( $_[0]->timeout, name => 'stall timeout' ) },
 );
 
 has _h => ( is => 'rw' );
