@@ -40,18 +40,20 @@ Default value is plotly js bundled with L<Chart::Ploly>.
 
 =cut
 
+my $default_plotlyjs = sub {
+    my $plotlyjs;
+    eval {
+        $plotlyjs = File::ShareDir::dist_file( 'Chart-Plotly',
+            'plotly.js/plotly.min.js' );
+    };  
+    return $plotlyjs;
+};
+
 has plotlyjs => (
     is      => 'ro',
-    isa     => ( Str | Undef ),
+    isa     => Str->plus_coercions(Undef, $default_plotlyjs),
+    default => $default_plotlyjs,
     coerce  => 1,
-    builder => sub {
-        my $plotlyjs;
-        eval {
-            $plotlyjs = File::ShareDir::dist_file( 'Chart-Plotly',
-                'plotly.js/plotly.min.js' );
-        };
-        return $plotlyjs;
-    },
 );
 
 has [qw(mathjax topojson)] => (

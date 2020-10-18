@@ -4,6 +4,7 @@ Revision history of Chart-Kaleido
     - Fix Chart::Plotly::Plot object as save() or transform() parameter.
     - all_formats, scope_name, scope_flags are now like class
       attributes/methods.
+    - Improve plotlyjs parameter default behavior.
 
 0.004       2020-10-10
     - Breaking change: Rename save() and transform() funcs' plotly
