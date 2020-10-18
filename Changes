@@ -1,6 +1,7 @@
 Revision history of Chart-Kaleido
 
 0.005       TBD
+    - Fix Chart::Plotly::Plot object as save() or transform() parameter.
     - all_formats, scope_name, scope_flags are now like class
       attributes/methods.
 

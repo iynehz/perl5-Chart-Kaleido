@@ -35,8 +35,9 @@ has base_args => (
 );
 
 has _stall_timeout => (
-    is      => 'lazy',
-    builder => sub { IPC::Run::timeout( $_[0]->timeout, name => 'stall timeout' ) },
+    is => 'lazy',
+    builder =>
+      sub { IPC::Run::timeout( $_[0]->timeout, name => 'stall timeout' ) },
 );
 
 has _h => ( is => 'rw' );
@@ -133,7 +134,9 @@ sub do_transform {
     my ( $self, $data ) = @_;
 
     $self->ensure_kaleido;
-    $self->_ios->{in} .= encode_json($data) . "\n";
+
+    my $json = JSON->new->allow_blessed(1)->convert_blessed(1);
+    $self->_ios->{in} .= $json->encode($data) . "\n";
     $self->_stall_timeout->start;
     my $resp = $self->_get_kaleido_out;
     return $resp;

@@ -42,7 +42,7 @@ Default value is plotly js bundled with L<Chart::Ploly>.
 
 has plotlyjs => (
     is      => 'ro',
-    isa     => (Str | Undef),
+    isa     => ( Str | Undef ),
     coerce  => 1,
     builder => sub {
         my $plotlyjs;
@@ -56,14 +56,18 @@ has plotlyjs => (
 
 has [qw(mathjax topojson)] => (
     is     => 'ro',
-    isa    => (Str | Undef),
+    isa    => ( Str | Undef ),
     coerce => 1,
 );
 
 has mapbox_access_token => (
     is  => 'ro',
-    isa => (Str | Undef),
+    isa => ( Str | Undef ),
 );
+
+=attr default_format
+
+Default is "png".
 
 =attr default_width
 
@@ -77,6 +81,12 @@ Default is 500.
 
 my $PositiveInt = Int->where( sub { $_ > 0 } );
 
+has default_format => (
+    is      => 'ro',
+    isa     => Str,
+    default => 'png',
+);
+
 has default_width => (
     is      => 'ro',
     isa     => $PositiveInt,
@@ -89,8 +99,7 @@ has default_height => (
     default => 500,
 );
 
-has '+base_args' =>
-  ( default => sub { [ qw(plotly --disable-gpu) ] } );
+has '+base_args' => ( default => sub { [qw(plotly --disable-gpu)] } );
 
 sub all_formats { [qw(png jpg jpeg webp svg pdf eps json)] }
 sub scope_name  { 'plotly' }
@@ -99,7 +108,7 @@ sub scope_flags { [qw(plotlyjs mathjax topojson mapbox_access_token)] }
 =method transform
 
     transform(( HashRef | InstanceOf["Chart::Plotly::Plot"] ) :$plot,
-              Optional[Str] :$format,
+              Str :$format=$self->default_format,
               PositiveInt :$width=$self->default_width,
               PositiveInt :$height=$self->default_height,
               Num :$scale=1)
@@ -113,7 +122,7 @@ sub transform {
     state $check = compile_named_oo(
     #<<< no perltidy
         plot   => ( HashRef | InstanceOf["Chart::Plotly::Plot"] ),
-        format => Optional[Str],
+        format => Optional[Str], { default => sub { $self->default_format } },
         width  => $PositiveInt, { default => sub { $self->default_width } },
         height => $PositiveInt, { default => sub { $self->default_height} },
         scale  => Num, { default => 1 },
@@ -138,7 +147,8 @@ sub transform {
         scale  => $arg->scale,
         data   => $plot,
     };
-    warn ref($plot);
+
+    local *PDL::TO_JSON = sub { $_[0]->unpdl };
     my $resp = $self->do_transform($data);
     if ( $resp->{code} != 0 ) {
         die $resp->{message};
@@ -205,12 +215,23 @@ __END__
     use Chart::Kaleido::Plotly;
     use JSON;
 
+    my $kaleido = Chart::Kaleido::Plotly->new();
+
+    # convert a hashref
     my $data = decode_json(<<'END_OF_TEXT');
     { "data": [{"y": [1,2,1]}] }
     END_OF_TEXT
-
-    my $kaleido = Chart::Kaleido::Plotly->new();
     $kaleido->save( file => "foo.png", plot => $data,
+                    width => 1024, height => 768 );
+
+    # convert a Chart::Plotly::Plot object
+    use Chart::Plotly::Plot;
+    my $plot = Chart::Plotly::Plot->new(
+        traces => [
+            Chart::Plotly::Trace::Scatter->new( x => [ 1 .. 5 ], y => [ 1 .. 5 ] )
+        ]
+    );
+    $kaleido->save( file => "foo.png", plot => $plot,
                     width => 1024, height => 768 );
 
 =head1 DESCRIPTION
