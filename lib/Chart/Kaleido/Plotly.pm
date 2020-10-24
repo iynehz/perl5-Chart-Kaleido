@@ -51,7 +51,7 @@ my $default_plotlyjs = sub {
 
 has plotlyjs => (
     is      => 'ro',
-    isa     => Str->plus_coercions(Undef, $default_plotlyjs),
+    isa     => ( Str->plus_coercions( Undef, $default_plotlyjs ) | Undef ),
     default => $default_plotlyjs,
     coerce  => 1,
 );
