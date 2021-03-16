@@ -34,6 +34,25 @@ has base_args => (
     default  => sub { [] },
 );
 
+has _default_chromium_args => (
+    is      => 'ro',
+    default => sub {
+        [
+            qw(
+              --disable-gpu
+              --allow-file-access-from-files
+              --disable-breakpad
+              --disable-dev-shm-usage
+            )
+        ];
+    }
+);
+
+has disable_gpu => (
+    is      => 'ro',
+    default => 1,
+);
+
 has _stall_timeout => (
     is => 'lazy',
     builder =>
@@ -70,6 +89,10 @@ sub kaleido_args {
     my ($self) = @_;
 
     my @args = @{ $self->base_args };
+    unless ( $self->disable_gpu ) {
+        @args = grep { $_ ne '--disable-gpu' } @args;
+    }
+
     no strict 'refs';
     push @args, map {
         my $val = $self->$_;

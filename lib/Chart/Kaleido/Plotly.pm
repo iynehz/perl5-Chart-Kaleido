@@ -101,7 +101,12 @@ has default_height => (
     default => 500,
 );
 
-has '+base_args' => ( default => sub { [qw(plotly --disable-gpu)] } );
+has '+base_args' => (
+    default => sub {
+        my $self = shift;
+        [ "plotly", @{ $self->_default_chromium_args }, "--no-sandbox" ];
+    }
+);
 
 sub all_formats { [qw(png jpg jpeg webp svg pdf eps json)] }
 sub scope_name  { 'plotly' }

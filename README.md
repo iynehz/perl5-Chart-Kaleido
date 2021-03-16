@@ -7,7 +7,7 @@ Chart::Kaleido - Base class for Chart::Kaleido
 
 # VERSION
 
-version 0.006
+version 0.007\_001
 
 # SYNOPSIS
 
@@ -51,7 +51,7 @@ Gabor Szabo <gabor@szabgab.com>
 
 # COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2020 by Stephan Loyd.
+This software is copyright (c) 2020-2021 by Stephan Loyd.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
