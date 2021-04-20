@@ -208,7 +208,7 @@ sub save {
         height => $arg->height,
         scale  => $arg->scale
     );
-    path($file)->spew_raw($img);
+    path($file)->append_raw( { truncate => 1 }, $img );
 }
 
 1;
