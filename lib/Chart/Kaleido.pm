@@ -271,9 +271,9 @@ __END__
     { "data": [{"y": [1,2,1]}] }
     END_OF_TEXT
 
-    my $kaleido = Chart::Plotly::Kaleido->new();
+    my $kaleido = Chart::Kaleido::Plotly->new();
     $kaleido->save( file => "foo.png", plot => $data,
-                    widht => 1024, height => 768 );
+                    width => 1024, height => 768 );
 
 =head1 DESCRIPTION
 
