@@ -41,3 +41,6 @@ inc/
 perltidy.ERR
 perltidy.LOG
 
+# dzil build tarball and dir
+Chart-Kaleido-*.tar.gz
+Chart-Kaleido-*/
