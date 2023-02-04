@@ -1,5 +1,5 @@
-[![Build Status](https://travis-ci.org/stphnlyd/perl5-Chart-Kaleido.svg?branch=master)](https://travis-ci.org/stphnlyd/perl5-Chart-Kaleido)
-[![AppVeyor Status](https://ci.appveyor.com/api/projects/status/github/stphnlyd/perl5-Chart-Kaleido?branch=master&svg=true)](https://ci.appveyor.com/project/stphnlyd/perl5-Chart-Kaleido)
+[![Build Status](https://travis-ci.org/iynehz/perl5-Chart-Kaleido.svg?branch=master)](https://travis-ci.org/iynehz/perl5-Chart-Kaleido)
+[![AppVeyor Status](https://ci.appveyor.com/api/projects/status/github/iynehz/perl5-Chart-Kaleido?branch=master&svg=true)](https://ci.appveyor.com/project/iynehz/perl5-Chart-Kaleido)
 
 # NAME
 
@@ -7,7 +7,7 @@ Chart::Kaleido - Base class for Chart::Kaleido
 
 # VERSION
 
-version 0.012
+version 0.014
 
 # SYNOPSIS
 
@@ -51,7 +51,7 @@ Gabor Szabo <gabor@szabgab.com>
 
 # COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2020-2022 by Stephan Loyd.
+This software is copyright (c) 2020-2023 by Stephan Loyd.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
